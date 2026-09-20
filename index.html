@@ -279,7 +279,7 @@
         </div>
       </form>
       <div class="confirm" id="confirm-box">
-        <p><strong>Almost there.</strong> Your email app should have opened with a message ready to send — hit send and you're on the list. If nothing opened, copy the message below and send it to <strong>hello@trademarkwatch.example</strong> instead.</p>
+        <p><strong>Almost there.</strong> Your email app should have opened with a message ready to send — hit send and you're on the list. If nothing opened, copy the message below and send it to <strong>ethan@cascade-ip.com</strong> instead.</p>
         <textarea class="copy-box" id="copy-text" readonly></textarea>
         <button class="copy-btn" type="button" onclick="copyMessage()">Copy message</button>
       </div>
@@ -295,7 +295,7 @@
 
   <footer>
     <p>// Trademark Watch is an independent early-stage project and is not affiliated with, endorsed by, or a substitute for advice from the U.S. Patent and Trademark Office.</p>
-    <p><a href="mailto:hello@trademarkwatch.example">or email us directly →</a></p>
+    <p><a href="mailto:ethan@cascade-ip.com">or email us directly →</a></p>
   </footer>
 
 </div>
@@ -309,7 +309,7 @@
     return lines.join('\n');
   }
   function openMail(subject, body){
-    var href = 'mailto:hello@trademarkwatch.example?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    var href = 'mailto:ethan@cascade-ip.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
     var a = document.createElement('a'); a.href = href; a.style.display = 'none';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }

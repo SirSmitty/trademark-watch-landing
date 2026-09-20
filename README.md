@@ -30,12 +30,12 @@ Then visit `http://localhost:8000`.
 
 ## Deploying
 
-This is a static file, so it can be hosted anywhere: GitHub Pages, Netlify,
-Vercel, Cloudflare Pages, or any static host.
+Live at [trademarkwatch.cascade-ip.com](https://trademarkwatch.cascade-ip.com),
+served via GitHub Pages with a custom subdomain (see the `CNAME` file). As a
+static file, it could just as easily be hosted anywhere else: Netlify, Vercel,
+Cloudflare Pages, or any static host.
 
 ## Notes
 
-- The contact email throughout (`hello@trademarkwatch.example`) is a
-  placeholder — swap it for a real inbox before sending real traffic to this
-  page.
+- Contact email throughout: `ethan@cascade-ip.com`.
 - This is a market-validation page, not the product itself.
