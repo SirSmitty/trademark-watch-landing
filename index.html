@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trademark Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/ScrollTrigger.min.js"></script>
+<style>
+  :root{
+    --paper:#FFFFFF;
+    --paper-raised:#FFFFFF;
+    --ink:#1B1B18;
+    --muted:#6E6C64;
+    --line:#DEDBD1;
+    --line-strong:#C7C3B5;
+    --accent:#2F5D50;
+    --accent-strong:#24483E;
+    --accent-on:#FFFFFF;
+    --accent-tint:#E4EBE8;
+    --display:'Archivo', 'Helvetica Neue', Arial, sans-serif;
+    --sans:'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  /* Committed single (light) look for now — intentionally no dark-mode
+     variant, so the page stays white regardless of the viewer's system
+     theme. Revisit with a proper dark palette later if wanted. */
+
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.6; }
+  ::selection{ background:var(--accent); color:var(--accent-on); }
+  .wrap{ max-width:900px; margin:0 auto; padding-inline:24px; }
+
+  /* header */
+  header{
+    position:sticky; top:env(safe-area-inset-top,0px);
+    background:color-mix(in srgb, var(--paper) 90%, transparent);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    z-index:20;
+  }
+  .header-row{ display:flex; align-items:center; justify-content:space-between; padding-block:16px; gap:12px; }
+  .wordmark{ font-family:var(--display); font-weight:800; font-size:1rem; letter-spacing:-0.01em; color:var(--ink); text-decoration:none; }
+  .wordmark .dot{ color:var(--accent); }
+  .nav-cta{
+    font-family:var(--mono); font-weight:500; font-size:0.76rem; letter-spacing:0.04em;
+    color:var(--ink); background:transparent; border:1px solid var(--line-strong);
+    border-radius:4px; padding:8px 13px; cursor:pointer; text-transform:uppercase;
+  }
+  .nav-cta:hover{ border-color:var(--accent); color:var(--accent); }
+
+  /* hero */
+  .hero{ padding-block:64px 0; border-top:none; position:relative; overflow:hidden; }
+  .hero-grid{ display:grid; grid-template-columns:1.3fr 0.9fr; gap:40px; align-items:start; }
+  @media (max-width:760px){ .hero-grid{ grid-template-columns:1fr; } }
+
+  .eyebrow{
+    font-family:var(--mono); font-size:0.72rem; font-weight:500; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 20px; display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--accent); flex:none; }
+  h1{
+    font-family:var(--display); font-weight:800; font-size:clamp(2.1rem, 5vw, 3.2rem);
+    line-height:1.05; letter-spacing:-0.02em; margin:0 0 22px; color:var(--ink);
+  }
+  h1 .line{ display:block; overflow:hidden; }
+  h1 .line span{ display:block; will-change:transform; }
+  .sub{ font-size:1.02rem; color:var(--muted); max-width:46ch; margin:0 0 28px; }
+  .sub strong{ color:var(--ink); font-weight:600; }
+
+  .hero-form{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .hero-form input[type=email]{
+    flex:1 1 220px; min-width:0; padding:13px 14px; border-radius:5px;
+    border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink);
+    font-family:var(--sans); font-size:0.94rem;
+  }
+  .hero-form input[type=email]:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .btn-primary{
+    padding:13px 22px; border-radius:5px; border:1px solid var(--accent);
+    background:var(--accent); color:var(--accent-on);
+    font-family:var(--sans); font-weight:600; font-size:0.94rem; cursor:pointer; white-space:nowrap;
+  }
+  .btn-primary:hover{ background:var(--accent-strong); border-color:var(--accent-strong); }
+  .fine{ font-size:0.8rem; color:var(--muted); font-family:var(--mono); letter-spacing:0.01em; }
+
+  /* scan panel — decorative match-preview card */
+  .scan-panel{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:8px;
+    padding:0; overflow:hidden; position:relative;
+  }
+  .scan-panel-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 16px; border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:0.7rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted);
+  }
+  .scan-dot{ width:7px; height:7px; border-radius:50%; background:var(--accent); display:inline-block; margin-right:6px; animation:pulse 2s infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
+  .scan-row{ display:flex; justify-content:space-between; gap:10px; padding:10px 16px; font-family:var(--mono); font-size:0.78rem; border-bottom:1px solid var(--line); }
+  .scan-row:last-child{ border-bottom:none; }
+  .scan-row .k{ color:var(--muted); }
+  .scan-row .v{ color:var(--ink); font-weight:500; text-align:right; }
+  .scan-match{
+    margin:14px; padding:12px 14px; border:1px solid var(--accent); border-radius:6px;
+    background:var(--accent-tint); font-family:var(--mono); font-size:0.76rem; color:var(--accent-strong);
+    display:flex; align-items:center; gap:8px;
+  }
+  .scan-sweep{
+    position:absolute; left:0; right:0; height:2px; background:var(--accent); opacity:0.55;
+    box-shadow:0 0 12px 1px var(--accent); top:0; pointer-events:none;
+  }
+
+  section{ padding-block:52px; border-top:1px solid var(--line); }
+  .section-head{ display:flex; align-items:baseline; gap:14px; margin-bottom:28px; }
+  .section-num{ font-family:var(--mono); font-size:0.85rem; color:var(--accent); flex:none; }
+  h2{ font-family:var(--display); font-weight:700; font-size:1.4rem; letter-spacing:-0.01em; margin:0; color:var(--ink); }
+
+  /* how it works */
+  .steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  @media (max-width:700px){ .steps{ grid-template-columns:1fr; } }
+  .step{ background:var(--paper-raised); padding:24px 20px; }
+  .step .n{ font-family:var(--mono); font-weight:600; font-size:0.78rem; color:var(--accent); display:block; margin-bottom:10px; }
+  .step h3{ margin:0 0 6px; font-size:1rem; font-weight:600; font-family:var(--sans); }
+  .step p{ margin:0; color:var(--muted); font-size:0.9rem; }
+
+  /* pricing */
+  .plans{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  @media (max-width:700px){ .plans{ grid-template-columns:1fr; } }
+  .plan{ background:var(--paper-raised); border:1px solid var(--line); border-radius:8px; padding:24px 20px; display:flex; flex-direction:column; gap:10px; }
+  .plan.featured{ border-color:var(--accent); }
+  .plan-name{ font-family:var(--mono); font-size:0.78rem; letter-spacing:0.04em; text-transform:uppercase; color:var(--muted); }
+  .plan.featured .plan-name{ color:var(--accent); }
+  .plan-price{ font-family:var(--display); font-weight:700; font-size:1.7rem; color:var(--ink); }
+  .plan-price span{ font-size:0.8rem; color:var(--muted); font-family:var(--sans); font-weight:400; }
+  .plan ul{ margin:2px 0 6px; padding-left:16px; color:var(--muted); font-size:0.87rem; line-height:1.65; }
+  .plan-cta{
+    margin-top:auto; padding:10px 12px; border-radius:5px; border:1px solid var(--line-strong);
+    background:transparent; color:var(--ink); font-family:var(--sans); font-weight:600; font-size:0.84rem; cursor:pointer;
+  }
+  .plan-cta:hover{ border-color:var(--accent); color:var(--accent); }
+  .plan.featured .plan-cta{ border-color:var(--accent); background:var(--accent); color:var(--accent-on); }
+  .plan.featured .plan-cta:hover{ background:var(--accent-strong); border-color:var(--accent-strong); }
+
+  /* signup panel */
+  .panel{ background:var(--paper-raised); border:1px solid var(--line); border-radius:8px; padding:28px 24px; }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-family:var(--mono); font-size:0.76rem; letter-spacing:0.03em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+  .field input[type=text], .field input[type=email]{
+    width:100%; padding:11px 12px; border-radius:5px; border:1px solid var(--line-strong);
+    background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:0.95rem;
+  }
+  .field input:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .radio-row{ display:flex; flex-wrap:wrap; gap:9px; }
+  .radio-chip{ display:flex; align-items:center; gap:6px; border:1px solid var(--line-strong); border-radius:5px; padding:8px 12px; font-size:0.86rem; cursor:pointer; }
+  .radio-chip:has(input:checked){ border-color:var(--accent); background:var(--accent-tint); color:var(--accent-strong); }
+  .check-row{ display:flex; gap:9px; align-items:flex-start; font-size:0.87rem; color:var(--muted); margin-bottom:18px; }
+  .check-row input{ margin-top:3px; }
+  .submit-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+
+  .confirm{ display:none; background:var(--accent-tint); border:1px solid var(--accent); border-radius:6px; padding:16px 18px; margin-top:16px; font-size:0.9rem; }
+  .confirm.show{ display:block; }
+  .confirm strong{ color:var(--accent-strong); }
+  .copy-box{ width:100%; margin-top:10px; font-family:var(--mono); font-size:0.78rem; background:var(--paper); border:1px solid var(--line); border-radius:5px; padding:10px; color:var(--ink); resize:vertical; min-height:70px; }
+  .copy-btn{ margin-top:8px; padding:6px 12px; border-radius:5px; border:1px solid var(--line-strong); background:transparent; color:var(--ink); font-size:0.8rem; cursor:pointer; font-family:var(--sans); }
+
+  /* faq */
+  .faq-item{ margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--line); }
+  .faq-item:last-child{ border-bottom:none; margin-bottom:0; padding-bottom:0; }
+  .faq-item h3{ font-size:0.95rem; margin:0 0 6px; font-weight:600; font-family:var(--sans); }
+  .faq-item p{ margin:0; color:var(--muted); font-size:0.9rem; }
+
+  footer{ padding-block:34px calc(34px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--line); }
+  footer p{ color:var(--muted); font-size:0.78rem; max-width:52ch; margin:0 0 12px; font-family:var(--mono); }
+  footer a{ color:var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap header-row">
+    <span class="wordmark">Trademark<span class="dot">.</span>Watch</span>
+    <button class="nav-cta" id="nav-cta">Get notified</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="hero" style="border-top:none;">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">Private beta — USPTO filing alerts</p>
+        <h1 id="hero-h1">
+          <span class="line"><span>Know the moment someone</span></span>
+          <span class="line"><span>files near your mark.</span></span>
+        </h1>
+        <p class="sub" id="hero-sub">Trademark Watch checks new USPTO trademark filings against the marks, owners, and classes you care about — and emails you the moment something matches. <strong>Built on official USPTO data. Not legal advice, just an early warning.</strong></p>
+        <form class="hero-form" id="hero-form" onsubmit="return quickSignup(event)">
+          <input type="email" id="hero-email" placeholder="you@company.com" required aria-label="Email address">
+          <button class="btn-primary" type="submit">Notify me at launch</button>
+        </form>
+        <p class="fine" id="hero-fine">// no card, no account — just an email when we're ready</p>
+      </div>
+
+      <div class="scan-panel" id="scan-panel">
+        <div class="scan-sweep" id="scan-sweep"></div>
+        <div class="scan-panel-head"><span><span class="scan-dot"></span>Live watch — Class 25</span><span>#0417</span></div>
+        <div class="scan-row"><span class="k">Serial No.</span><span class="v">98/771,204</span></div>
+        <div class="scan-row"><span class="k">Mark</span><span class="v">SUMMIT&nbsp;&amp;&nbsp;CO</span></div>
+        <div class="scan-row"><span class="k">Class</span><span class="v">025 — Apparel</span></div>
+        <div class="scan-row"><span class="k">Filed</span><span class="v">2027-04-09</span></div>
+        <div class="scan-row"><span class="k">Status</span><span class="v">New filing</span></div>
+        <div class="scan-match">⟶ Match on saved mark "SUMMIT" — alert sent</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">00</span><h2>Where this sits in the market</h2></div>
+    <div class="steps">
+      <div class="step"><span class="n">$200+/MO</span><h3>Enterprise monitoring</h3><p>Corsearch, Clarivate, and similar platforms — custom-quoted, built for legal departments.</p></div>
+      <div class="step"><span class="n">$33–99/MO</span><h3>The affordable tier</h3><p>A handful of options exist, but most reviewers flag this end of the market as thin.</p></div>
+      <div class="step"><span class="n">$19/MO</span><h3>Trademark Watch</h3><p>Same category of alerting, priced for a founder or small business, not a law department.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">01</span><h2>How it works</h2></div>
+    <div class="steps">
+      <div class="step"><span class="n">01</span><h3>Tell us what to watch</h3><p>A mark, an owner name, or a set of trademark classes — whatever you need to keep an eye on.</p></div>
+      <div class="step"><span class="n">02</span><h3>We check USPTO's filings continuously</h3><p>Every new application and status update runs against your saved criteria, pulled from USPTO's own data.</p></div>
+      <div class="step"><span class="n">03</span><h3>You get an email the moment something matches</h3><p>Plain-language, factual, and fast — so you hear it from us before you hear it from anyone else.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">02</span><h2>Pricing — launch rates, subject to change</h2></div>
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">$19<span> /mo</span></div>
+        <ul><li>1 watched mark</li><li>Weekly digest email</li><li>Owner &amp; class matching</li></ul>
+        <button class="plan-cta" onclick="selectPlan('Starter ($19/mo)')">Notify me</button>
+      </div>
+      <div class="plan featured">
+        <div class="plan-name">Growth</div>
+        <div class="plan-price">$49<span> /mo</span></div>
+        <ul><li>Up to 5 watched marks</li><li>Real-time alerts</li><li>Owner, class &amp; keyword matching</li></ul>
+        <button class="plan-cta" onclick="selectPlan('Growth ($49/mo)')">Notify me</button>
+      </div>
+      <div class="plan">
+        <div class="plan-name">Firm / White-Label</div>
+        <div class="plan-price">$99+<span> /seat/mo</span></div>
+        <ul><li>Resell under your own firm's brand</li><li>Client-ready reports</li><li>Unlimited marks per client</li></ul>
+        <button class="plan-cta" onclick="selectPlan('Firm / White-Label ($99+/seat/mo)', true)">Talk to us</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="signup">
+    <div class="section-head"><span class="section-num">03</span><h2>Get early access</h2></div>
+    <div class="panel">
+      <form onsubmit="return submitSignup(event)">
+        <div class="field"><label for="f-name">Name — optional</label><input type="text" id="f-name"></div>
+        <div class="field"><label for="f-email">Email</label><input type="email" id="f-email" required></div>
+        <div class="field">
+          <label>Most interested in</label>
+          <div class="radio-row" id="plan-radios">
+            <label class="radio-chip"><input type="radio" name="plan" value="Starter ($19/mo)" checked>Starter — $19/mo</label>
+            <label class="radio-chip"><input type="radio" name="plan" value="Growth ($49/mo)">Growth — $49/mo</label>
+            <label class="radio-chip"><input type="radio" name="plan" value="Not sure yet">Not sure yet</label>
+          </div>
+        </div>
+        <label class="check-row"><input type="checkbox" id="f-firm"><span>I'm an attorney or run a firm — I'd want to offer this to my own clients under my own brand (white-label).</span></label>
+        <div class="submit-row">
+          <button class="btn-primary" type="submit">Notify me at launch</button>
+          <span class="fine">// opens a pre-filled email — one click to confirm</span>
+        </div>
+      </form>
+      <div class="confirm" id="confirm-box">
+        <p><strong>Almost there.</strong> Your email app should have opened with a message ready to send — hit send and you're on the list. If nothing opened, copy the message below and send it to <strong>hello@trademarkwatch.example</strong> instead.</p>
+        <textarea class="copy-box" id="copy-text" readonly></textarea>
+        <button class="copy-btn" type="button" onclick="copyMessage()">Copy message</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">04</span><h2>Questions</h2></div>
+    <div class="faq-item"><h3>Is this legal advice?</h3><p>No. Trademark Watch reports publication facts from USPTO's own data — a new filing exists that matches your saved criteria. It doesn't assess likelihood of confusion, validity, or infringement. For any of that, talk to a trademark attorney.</p></div>
+    <div class="faq-item"><h3>Where does the data come from?</h3><p>Official USPTO systems — the Trademark Status &amp; Document Retrieval (TSDR) API and USPTO's public bulk trademark data. Nothing scraped, nothing unofficial.</p></div>
+    <div class="faq-item"><h3>When does this launch?</h3><p>We're building now and targeting a 2027 launch. Early-access signups get first access and a founding-member rate.</p></div>
+  </section>
+
+  <footer>
+    <p>// Trademark Watch is an independent early-stage project and is not affiliated with, endorsed by, or a substitute for advice from the U.S. Patent and Trademark Office.</p>
+    <p><a href="mailto:hello@trademarkwatch.example">or email us directly →</a></p>
+  </footer>
+
+</div>
+
+<script>
+  function buildMessage(name, email, plan, isFirm){
+    var lines = ['Trademark Watch — early access signup', '', 'Email: ' + email];
+    if(name) lines.push('Name: ' + name);
+    lines.push('Interested in: ' + plan);
+    if(isFirm) lines.push('Firm / white-label interest: yes');
+    return lines.join('\n');
+  }
+  function openMail(subject, body){
+    var href = 'mailto:hello@trademarkwatch.example?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    var a = document.createElement('a'); a.href = href; a.style.display = 'none';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+  function showConfirm(body){
+    var box = document.getElementById('confirm-box'); var ta = document.getElementById('copy-text');
+    ta.value = body; box.classList.add('show'); box.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+  function quickSignup(e){
+    e.preventDefault();
+    var email = document.getElementById('hero-email').value.trim();
+    if(!email) return false;
+    var body = buildMessage('', email, 'Not sure yet', false);
+    openMail('Trademark Watch — early access signup', body);
+    document.getElementById('f-email').value = email;
+    showConfirm(body);
+    return false;
+  }
+  function selectPlan(planLabel, isFirm){
+    document.getElementById('signup').scrollIntoView({behavior:'smooth'});
+    var radios = document.querySelectorAll('#plan-radios input[type=radio]');
+    var matched = false;
+    radios.forEach(function(r){ if(r.value === planLabel){ r.checked = true; matched = true; } });
+    if(!matched){ radios[2].checked = true; }
+    if(isFirm){ document.getElementById('f-firm').checked = true; }
+  }
+  function submitSignup(e){
+    e.preventDefault();
+    var name = document.getElementById('f-name').value.trim();
+    var email = document.getElementById('f-email').value.trim();
+    var plan = document.querySelector('#plan-radios input[type=radio]:checked').value;
+    var isFirm = document.getElementById('f-firm').checked;
+    if(!email) return false;
+    var body = buildMessage(name, email, plan, isFirm);
+    openMail('Trademark Watch — early access signup', body);
+    showConfirm(body);
+    return false;
+  }
+  function copyMessage(){
+    var ta = document.getElementById('copy-text'); ta.select();
+    try{ document.execCommand('copy'); }catch(err){}
+    if(navigator.clipboard){ navigator.clipboard.writeText(ta.value).catch(function(){}); }
+  }
+  document.getElementById('nav-cta').addEventListener('click', function(){
+    document.getElementById('signup').scrollIntoView({behavior:'smooth'});
+  });
+
+  // ---- motion ----
+  (function(){
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce || typeof gsap === 'undefined'){ return; }
+
+    gsap.fromTo('#hero-h1 .line span', {y:'100%'}, {y:'0%', duration:0.8, ease:'power3.out', stagger:0.08});
+    gsap.fromTo(['.eyebrow', '#hero-sub', '#hero-form', '#hero-fine'],
+      {opacity:0, y:14}, {opacity:1, y:0, duration:0.7, ease:'power2.out', stagger:0.08, delay:0.15});
+    gsap.fromTo('#scan-panel', {opacity:0, y:18}, {opacity:1, y:0, duration:0.8, ease:'power2.out', delay:0.35});
+
+    var sweepH = document.getElementById('scan-panel') ? document.getElementById('scan-panel').offsetHeight : 260;
+    gsap.fromTo('#scan-sweep', {y:0, opacity:0.6}, {
+      y:sweepH, opacity:0, duration:2.2, ease:'power1.inOut', repeat:-1, repeatDelay:1.1, delay:1
+    });
+
+    if(typeof ScrollTrigger !== 'undefined'){
+      gsap.registerPlugin(ScrollTrigger);
+      document.querySelectorAll('section').forEach(function(sec){
+        var head = sec.querySelector('.section-head');
+        if(head){
+          gsap.fromTo(head, {opacity:0, y:16}, {
+            opacity:1, y:0, duration:0.6, ease:'power2.out',
+            scrollTrigger:{trigger:head, start:'top 85%'}
+          });
+        }
+        var items = sec.querySelectorAll('.step, .plan, .faq-item');
+        if(items.length){
+          gsap.fromTo(items, {opacity:0, y:20}, {
+            opacity:1, y:0, duration:0.6, ease:'power2.out', stagger:0.08,
+            scrollTrigger:{trigger:sec, start:'top 80%'}
+          });
+        }
+        var panel = sec.querySelector('.panel');
+        if(panel){
+          gsap.fromTo(panel, {opacity:0, y:20}, {
+            opacity:1, y:0, duration:0.6, ease:'power2.out',
+            scrollTrigger:{trigger:panel, start:'top 85%'}
+          });
+        }
+      });
+    }
+  })();
+</script>
+</body>
+</html>
