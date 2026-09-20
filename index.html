@@ -201,6 +201,7 @@
           <button class="btn-primary" type="submit">Notify me at launch</button>
         </form>
         <p class="fine" id="hero-fine">// no card, no account — just an email when we're ready</p>
+        <p class="fine" id="hero-status" style="display:none;margin-top:6px;"></p>
       </div>
 
       <div class="scan-panel" id="scan-panel">
@@ -275,13 +276,12 @@
         <label class="check-row"><input type="checkbox" id="f-firm"><span>I'm an attorney or run a firm — I'd want to offer this to my own clients under my own brand (white-label).</span></label>
         <div class="submit-row">
           <button class="btn-primary" type="submit">Notify me at launch</button>
-          <span class="fine">// opens a pre-filled email — one click to confirm</span>
+          <span class="fine">// takes one click — no email app required</span>
         </div>
       </form>
       <div class="confirm" id="confirm-box">
-        <p><strong>Almost there.</strong> Your email app should have opened with a message ready to send — hit send and you're on the list. If nothing opened, copy the message below and send it to <strong>ethan@cascade-ip.com</strong> instead.</p>
-        <textarea class="copy-box" id="copy-text" readonly></textarea>
-        <button class="copy-btn" type="button" onclick="copyMessage()">Copy message</button>
+        <p id="confirm-success"><strong>You're on the list.</strong> We'll email you the moment Trademark Watch opens up — no further action needed.</p>
+        <p id="confirm-error" style="display:none"><strong>Something went wrong.</strong> Your signup couldn't be submitted — email us directly at <strong>ethan@cascade-ip.com</strong> instead and we'll get you on the list.</p>
       </div>
     </div>
   </section>
@@ -301,30 +301,54 @@
 </div>
 
 <script>
-  function buildMessage(name, email, plan, isFirm){
-    var lines = ['Trademark Watch — early access signup', '', 'Email: ' + email];
-    if(name) lines.push('Name: ' + name);
-    lines.push('Interested in: ' + plan);
-    if(isFirm) lines.push('Firm / white-label interest: yes');
-    return lines.join('\n');
+  var SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwW3vC4t2RSdw7LJwwZMbtbWVRR-DBcEDLmyIXBXyuFNUqElRq4ZPXma_ucQgN6S3C6/exec';
+
+  function submitToSheet(data){
+    var fd = new FormData();
+    Object.keys(data).forEach(function(k){ fd.append(k, data[k]); });
+    // Apps Script web apps don't return CORS headers for cross-origin fetch, so
+    // we use no-cors: the request still reaches the script and appends the row,
+    // we just can't read the response back. Treat a resolved promise (no thrown
+    // network error) as success.
+    return fetch(SIGNUP_ENDPOINT, { method: 'POST', mode: 'no-cors', body: fd });
   }
-  function openMail(subject, body){
-    var href = 'mailto:ethan@cascade-ip.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-    var a = document.createElement('a'); a.href = href; a.style.display = 'none';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  function showHeroStatus(msg, isError){
+    var el = document.getElementById('hero-status');
+    el.textContent = msg;
+    el.style.color = isError ? '#b3261e' : '';
+    el.style.display = 'block';
   }
-  function showConfirm(body){
-    var box = document.getElementById('confirm-box'); var ta = document.getElementById('copy-text');
-    ta.value = body; box.classList.add('show'); box.scrollIntoView({behavior:'smooth', block:'nearest'});
+  function showConfirm(){
+    var box = document.getElementById('confirm-box');
+    document.getElementById('confirm-success').style.display = '';
+    document.getElementById('confirm-error').style.display = 'none';
+    box.classList.add('show');
+    box.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+  function showConfirmError(){
+    var box = document.getElementById('confirm-box');
+    document.getElementById('confirm-success').style.display = 'none';
+    document.getElementById('confirm-error').style.display = '';
+    box.classList.add('show');
+    box.scrollIntoView({behavior:'smooth', block:'nearest'});
   }
   function quickSignup(e){
     e.preventDefault();
     var email = document.getElementById('hero-email').value.trim();
     if(!email) return false;
-    var body = buildMessage('', email, 'Not sure yet', false);
-    openMail('Trademark Watch — early access signup', body);
-    document.getElementById('f-email').value = email;
-    showConfirm(body);
+    var btn = document.querySelector('#hero-form button[type=submit]');
+    var original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Sending…';
+    submitToSheet({ name:'', email:email, plan:'Not sure yet', isFirm:'false' })
+      .then(function(){
+        btn.textContent = "You're in ✓";
+        document.getElementById('f-email').value = email;
+        showHeroStatus("You're on the list — we'll email you when we launch.", false);
+      })
+      .catch(function(){
+        btn.disabled = false; btn.textContent = original;
+        showHeroStatus('Something went wrong — try the form below or email ethan@cascade-ip.com directly.', true);
+      });
     return false;
   }
   function selectPlan(planLabel, isFirm){
@@ -342,15 +366,19 @@
     var plan = document.querySelector('#plan-radios input[type=radio]:checked').value;
     var isFirm = document.getElementById('f-firm').checked;
     if(!email) return false;
-    var body = buildMessage(name, email, plan, isFirm);
-    openMail('Trademark Watch — early access signup', body);
-    showConfirm(body);
+    var btn = e.target.querySelector('button[type=submit]');
+    var original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Sending…';
+    submitToSheet({ name:name, email:email, plan:plan, isFirm:isFirm ? 'true' : 'false' })
+      .then(function(){
+        btn.textContent = 'Sent ✓';
+        showConfirm();
+      })
+      .catch(function(){
+        btn.disabled = false; btn.textContent = original;
+        showConfirmError();
+      });
     return false;
-  }
-  function copyMessage(){
-    var ta = document.getElementById('copy-text'); ta.select();
-    try{ document.execCommand('copy'); }catch(err){}
-    if(navigator.clipboard){ navigator.clipboard.writeText(ta.value).catch(function(){}); }
   }
   document.getElementById('nav-cta').addEventListener('click', function(){
     document.getElementById('signup').scrollIntoView({behavior:'smooth'});
