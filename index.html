@@ -21,6 +21,16 @@
     --accent-strong:#24483E;
     --accent-on:#FFFFFF;
     --accent-tint:#E4EBE8;
+    --error:#B3261E;
+    /* dark band used by the header + hero */
+    --hero-bg:#1A2320;
+    --hero-ink:#F4F2EA;
+    --hero-muted:#A5B0AA;
+    --hero-line:rgba(244,242,234,0.13);
+    --hero-raised:rgba(244,242,234,0.045);
+    --accent-bright:#8FC7B2;
+    --accent-bright-on:#12201A;
+    --hero-error:#E9A39B;
     --display:'Archivo', 'Helvetica Neue', Arial, sans-serif;
     --sans:'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -34,85 +44,112 @@
   ::selection{ background:var(--accent); color:var(--accent-on); }
   .wrap{ max-width:900px; margin:0 auto; padding-inline:24px; }
 
-  /* header */
+  /* header — shares the hero's dark band so the top of the page reads as one block */
   header{
     position:sticky; top:env(safe-area-inset-top,0px);
-    background:color-mix(in srgb, var(--paper) 90%, transparent);
-    backdrop-filter:blur(6px);
-    border-bottom:1px solid var(--line);
+    background:var(--hero-bg);
+    border-bottom:1px solid var(--hero-line);
     z-index:20;
   }
   .header-row{ display:flex; align-items:center; justify-content:space-between; padding-block:16px; gap:12px; }
-  .wordmark{ font-family:var(--display); font-weight:800; font-size:1rem; letter-spacing:-0.01em; color:var(--ink); text-decoration:none; }
-  .wordmark .dot{ color:var(--accent); }
+  .wordmark{ font-family:var(--display); font-weight:800; font-size:1rem; letter-spacing:-0.01em; color:var(--hero-ink); text-decoration:none; }
+  .wordmark .dot{ color:var(--accent-bright); }
   .nav-cta{
     font-family:var(--mono); font-weight:500; font-size:0.76rem; letter-spacing:0.04em;
-    color:var(--ink); background:transparent; border:1px solid var(--line-strong);
+    color:var(--hero-ink); background:transparent; border:1px solid var(--hero-line);
     border-radius:4px; padding:8px 13px; cursor:pointer; text-transform:uppercase;
   }
-  .nav-cta:hover{ border-color:var(--accent); color:var(--accent); }
+  .nav-cta:hover{ border-color:var(--accent-bright); color:var(--accent-bright); }
 
-  /* hero */
-  .hero{ padding-block:64px 0; border-top:none; position:relative; overflow:hidden; }
-  .hero-grid{ display:grid; grid-template-columns:1.3fr 0.9fr; gap:40px; align-items:start; }
-  @media (max-width:760px){ .hero-grid{ grid-template-columns:1fr; } }
+  /* hero — full-bleed dark band */
+  .hero-band{ background:var(--hero-bg); color:var(--hero-ink); position:relative; overflow:hidden; }
+  .hero-band::before{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 60% 70% at 85% 30%, rgba(47,93,80,0.55), transparent 70%),
+      radial-gradient(ellipse 40% 50% at 10% 100%, rgba(47,93,80,0.25), transparent 70%);
+  }
+  .hero-band::after{
+    content:''; position:absolute; inset:0; pointer-events:none; opacity:0.5;
+    background-image:
+      linear-gradient(var(--hero-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hero-line) 1px, transparent 1px);
+    background-size:56px 56px;
+    -webkit-mask-image:radial-gradient(ellipse 70% 90% at 70% 40%, #000 20%, transparent 75%);
+            mask-image:radial-gradient(ellipse 70% 90% at 70% 40%, #000 20%, transparent 75%);
+  }
+  .hero-band .wrap{ position:relative; z-index:1; }
+  .hero{ padding-block:72px 76px; border-top:none; }
+  .hero-grid{ display:grid; grid-template-columns:1.2fr 1fr; gap:48px; align-items:start; margin-top:36px; }
+  @media (max-width:760px){ .hero-grid{ grid-template-columns:1fr; } .hero{ padding-block:52px 56px; } }
 
   .eyebrow{
     font-family:var(--mono); font-size:0.72rem; font-weight:500; letter-spacing:0.1em;
-    text-transform:uppercase; color:var(--accent); margin:0 0 20px; display:flex; align-items:center; gap:8px;
+    text-transform:uppercase; color:var(--accent-bright); margin:0 0 20px; display:flex; align-items:center; gap:8px;
   }
-  .eyebrow::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--accent); flex:none; }
+  .eyebrow::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--accent-bright); flex:none; }
   h1{
     font-family:var(--display); font-weight:800; font-size:clamp(2.1rem, 5vw, 3.2rem);
-    line-height:1.05; letter-spacing:-0.02em; margin:0 0 22px; color:var(--ink);
+    line-height:1.05; letter-spacing:-0.02em; margin:0; color:var(--hero-ink);
   }
   h1 .line{ display:block; overflow:hidden; }
   h1 .line span{ display:block; will-change:transform; }
-  .sub{ font-size:1.02rem; color:var(--muted); max-width:46ch; margin:0 0 28px; }
-  .sub strong{ color:var(--ink); font-weight:600; }
+  .sub{ font-size:1.02rem; color:var(--hero-muted); max-width:46ch; margin:0 0 28px; }
+  .sub strong{ color:var(--hero-ink); font-weight:600; }
 
   .hero-form{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
   .hero-form input[type=email]{
     flex:1 1 220px; min-width:0; padding:13px 14px; border-radius:5px;
-    border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink);
+    border:1px solid var(--hero-line); background:var(--hero-raised); color:var(--hero-ink);
     font-family:var(--sans); font-size:0.94rem;
   }
-  .hero-form input[type=email]:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .hero-form input[type=email]::placeholder{ color:var(--hero-muted); }
+  .hero-form input[type=email]:focus{ outline:2px solid var(--accent-bright); outline-offset:1px; }
   .btn-primary{
     padding:13px 22px; border-radius:5px; border:1px solid var(--accent);
     background:var(--accent); color:var(--accent-on);
     font-family:var(--sans); font-weight:600; font-size:0.94rem; cursor:pointer; white-space:nowrap;
   }
   .btn-primary:hover{ background:var(--accent-strong); border-color:var(--accent-strong); }
+  .hero .btn-primary{ background:var(--accent-bright); border-color:var(--accent-bright); color:var(--accent-bright-on); }
+  .hero .btn-primary:hover{ background:#A6D6C4; border-color:#A6D6C4; }
+  .btn-primary:disabled{ opacity:0.85; cursor:default; }
   .fine{ font-size:0.8rem; color:var(--muted); font-family:var(--mono); letter-spacing:0.01em; }
+  .fine.is-error{ color:var(--error); }
+  .hero .fine{ color:var(--hero-muted); }
+  .hero .fine.is-error{ color:var(--hero-error); }
+  .hero-alt{ margin:18px 0 0; font-size:0.86rem; color:var(--hero-muted); }
+  .hero-alt a{ color:var(--hero-ink); text-decoration:underline; text-underline-offset:3px; text-decoration-color:var(--hero-line); cursor:pointer; }
+  .hero-alt a:hover{ color:var(--accent-bright); text-decoration-color:var(--accent-bright); }
 
   /* scan panel — decorative match-preview card */
   .scan-panel{
-    background:var(--paper-raised); border:1px solid var(--line); border-radius:8px;
-    padding:0; overflow:hidden; position:relative;
+    background:var(--hero-raised); border:1px solid var(--hero-line); border-radius:8px;
+    padding:0; overflow:hidden; position:relative; backdrop-filter:blur(4px);
   }
   .scan-panel-head{
     display:flex; justify-content:space-between; align-items:center;
-    padding:12px 16px; border-bottom:1px solid var(--line);
-    font-family:var(--mono); font-size:0.7rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted);
+    padding:12px 16px; border-bottom:1px solid var(--hero-line);
+    font-family:var(--mono); font-size:0.7rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--hero-muted);
   }
-  .scan-dot{ width:7px; height:7px; border-radius:50%; background:var(--accent); display:inline-block; margin-right:6px; animation:pulse 2s infinite; }
+  .scan-dot{ width:7px; height:7px; border-radius:50%; background:var(--accent-bright); display:inline-block; margin-right:6px; animation:pulse 2s infinite; }
   @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
-  .scan-row{ display:flex; justify-content:space-between; gap:10px; padding:10px 16px; font-family:var(--mono); font-size:0.78rem; border-bottom:1px solid var(--line); }
+  .scan-row{ display:flex; justify-content:space-between; gap:10px; padding:10px 16px; font-family:var(--mono); font-size:0.78rem; border-bottom:1px solid var(--hero-line); }
   .scan-row:last-child{ border-bottom:none; }
-  .scan-row .k{ color:var(--muted); }
-  .scan-row .v{ color:var(--ink); font-weight:500; text-align:right; }
+  .scan-row .k{ color:var(--hero-muted); }
+  .scan-row .v{ color:var(--hero-ink); font-weight:500; text-align:right; }
   .scan-match{
-    margin:14px; padding:12px 14px; border:1px solid var(--accent); border-radius:6px;
-    background:var(--accent-tint); font-family:var(--mono); font-size:0.76rem; color:var(--accent-strong);
+    margin:14px; padding:12px 14px; border:1px solid var(--accent-bright); border-radius:6px;
+    background:rgba(143,199,178,0.12); font-family:var(--mono); font-size:0.76rem; color:var(--accent-bright);
     display:flex; align-items:center; gap:8px;
   }
   .scan-sweep{
-    position:absolute; left:0; right:0; height:2px; background:var(--accent); opacity:0.55;
-    box-shadow:0 0 12px 1px var(--accent); top:0; pointer-events:none;
+    position:absolute; left:0; right:0; height:2px; background:var(--accent-bright); opacity:0.55;
+    box-shadow:0 0 12px 1px var(--accent-bright); top:0; pointer-events:none;
   }
 
   section{ padding-block:52px; border-top:1px solid var(--line); }
+  .content > section:first-child{ border-top:none; }
   .section-head{ display:flex; align-items:baseline; gap:14px; margin-bottom:28px; }
   .section-num{ font-family:var(--mono); font-size:0.85rem; color:var(--accent); flex:none; }
   h2{ font-family:var(--display); font-weight:700; font-size:1.4rem; letter-spacing:-0.01em; margin:0; color:var(--ink); }
@@ -129,12 +166,13 @@
   .plans{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
   @media (max-width:700px){ .plans{ grid-template-columns:1fr; } }
   .plan{ background:var(--paper-raised); border:1px solid var(--line); border-radius:8px; padding:24px 20px; display:flex; flex-direction:column; gap:10px; }
-  .plan.featured{ border-color:var(--accent); }
+  .plan.featured{ border-color:var(--accent); background:var(--accent-tint); }
   .plan-name{ font-family:var(--mono); font-size:0.78rem; letter-spacing:0.04em; text-transform:uppercase; color:var(--muted); }
   .plan.featured .plan-name{ color:var(--accent); }
   .plan-price{ font-family:var(--display); font-weight:700; font-size:1.7rem; color:var(--ink); }
   .plan-price span{ font-size:0.8rem; color:var(--muted); font-family:var(--sans); font-weight:400; }
   .plan ul{ margin:2px 0 6px; padding-left:16px; color:var(--muted); font-size:0.87rem; line-height:1.65; }
+  .plan.featured ul{ color:var(--ink); }
   .plan-cta{
     margin-top:auto; padding:10px 12px; border-radius:5px; border:1px solid var(--line-strong);
     background:transparent; color:var(--ink); font-family:var(--sans); font-weight:600; font-size:0.84rem; cursor:pointer;
@@ -142,6 +180,7 @@
   .plan-cta:hover{ border-color:var(--accent); color:var(--accent); }
   .plan.featured .plan-cta{ border-color:var(--accent); background:var(--accent); color:var(--accent-on); }
   .plan.featured .plan-cta:hover{ background:var(--accent-strong); border-color:var(--accent-strong); }
+  .plans-note{ margin:18px 0 0; font-size:0.86rem; color:var(--muted); }
 
   /* signup panel */
   .panel{ background:var(--paper-raised); border:1px solid var(--line); border-radius:8px; padding:28px 24px; }
@@ -162,8 +201,6 @@
   .confirm{ display:none; background:var(--accent-tint); border:1px solid var(--accent); border-radius:6px; padding:16px 18px; margin-top:16px; font-size:0.9rem; }
   .confirm.show{ display:block; }
   .confirm strong{ color:var(--accent-strong); }
-  .copy-box{ width:100%; margin-top:10px; font-family:var(--mono); font-size:0.78rem; background:var(--paper); border:1px solid var(--line); border-radius:5px; padding:10px; color:var(--ink); resize:vertical; min-height:70px; }
-  .copy-btn{ margin-top:8px; padding:6px 12px; border-radius:5px; border:1px solid var(--line-strong); background:transparent; color:var(--ink); font-size:0.8rem; cursor:pointer; font-family:var(--sans); }
 
   /* faq */
   .faq-item{ margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--line); }
@@ -181,82 +218,88 @@
 <header>
   <div class="wrap header-row">
     <span class="wordmark">Trademark<span class="dot">.</span>Watch</span>
-    <button class="nav-cta" id="nav-cta">Get notified</button>
+    <button class="nav-cta" id="nav-cta">Get early access</button>
   </div>
 </header>
 
-<div class="wrap">
+<div class="hero-band">
+  <div class="wrap">
+    <section class="hero">
+      <p class="eyebrow">Private beta — white-label USPTO watch for firms</p>
+      <h1 id="hero-h1">
+        <span class="line"><span>Offer trademark watching</span></span>
+        <span class="line"><span>under your firm's name.</span></span>
+      </h1>
+      <div class="hero-grid">
+        <div>
+          <p class="sub" id="hero-sub">Trademark Watch checks new USPTO filings against your clients' marks and sends the alerts with your firm's branding on them — so a solo or small IP practice can offer the watch service the enterprise platforms charge for, without building or staffing it. <strong>Built on official USPTO data. Your brand, our infrastructure.</strong></p>
+          <form class="hero-form" id="hero-form" onsubmit="return quickSignup(event)">
+            <input type="email" id="hero-email" placeholder="you@yourfirm.com" required aria-label="Email address">
+            <button class="btn-primary" type="submit">Request firm access</button>
+          </form>
+          <p class="fine" id="hero-fine">// no card, no commitment — we'll reach out before launch</p>
+          <p class="fine" id="hero-status" style="display:none;margin-top:6px;"></p>
+          <p class="hero-alt" id="hero-alt">Watching your own mark, not a client's? <a onclick="selectPlan('Not sure yet', false)">Join the direct waitlist →</a></p>
+        </div>
 
-  <section class="hero" style="border-top:none;">
-    <div class="hero-grid">
-      <div>
-        <p class="eyebrow">Private beta — USPTO filing alerts</p>
-        <h1 id="hero-h1">
-          <span class="line"><span>Know the moment someone</span></span>
-          <span class="line"><span>files near your mark.</span></span>
-        </h1>
-        <p class="sub" id="hero-sub">Trademark Watch checks new USPTO trademark filings against the marks, owners, and classes you care about — and emails you the moment something matches. <strong>Built on official USPTO data. Not legal advice, just an early warning.</strong></p>
-        <form class="hero-form" id="hero-form" onsubmit="return quickSignup(event)">
-          <input type="email" id="hero-email" placeholder="you@company.com" required aria-label="Email address">
-          <button class="btn-primary" type="submit">Notify me at launch</button>
-        </form>
-        <p class="fine" id="hero-fine">// no card, no account — just an email when we're ready</p>
-        <p class="fine" id="hero-status" style="display:none;margin-top:6px;"></p>
+        <div class="scan-panel" id="scan-panel">
+          <div class="scan-sweep" id="scan-sweep"></div>
+          <div class="scan-panel-head"><span><span class="scan-dot"></span>Hartley IP — Live watch</span><span>#0417</span></div>
+          <div class="scan-row"><span class="k">Client</span><span class="v">Summit Outfitters LLC</span></div>
+          <div class="scan-row"><span class="k">Serial No.</span><span class="v">98/771,204</span></div>
+          <div class="scan-row"><span class="k">Mark</span><span class="v">SUMMIT&nbsp;&amp;&nbsp;CO</span></div>
+          <div class="scan-row"><span class="k">Class</span><span class="v">025 — Apparel</span></div>
+          <div class="scan-row"><span class="k">Filed</span><span class="v">2027-04-09</span></div>
+          <div class="scan-match">⟶ Match on client mark "SUMMIT" — alert sent as Hartley IP</div>
+        </div>
       </div>
+    </section>
+  </div>
+</div>
 
-      <div class="scan-panel" id="scan-panel">
-        <div class="scan-sweep" id="scan-sweep"></div>
-        <div class="scan-panel-head"><span><span class="scan-dot"></span>Live watch — Class 25</span><span>#0417</span></div>
-        <div class="scan-row"><span class="k">Serial No.</span><span class="v">98/771,204</span></div>
-        <div class="scan-row"><span class="k">Mark</span><span class="v">SUMMIT&nbsp;&amp;&nbsp;CO</span></div>
-        <div class="scan-row"><span class="k">Class</span><span class="v">025 — Apparel</span></div>
-        <div class="scan-row"><span class="k">Filed</span><span class="v">2027-04-09</span></div>
-        <div class="scan-row"><span class="k">Status</span><span class="v">New filing</span></div>
-        <div class="scan-match">⟶ Match on saved mark "SUMMIT" — alert sent</div>
-      </div>
-    </div>
-  </section>
+<div class="wrap content">
 
   <section>
     <div class="section-head"><span class="section-num">00</span><h2>Where this sits in the market</h2></div>
     <div class="steps">
-      <div class="step"><span class="n">$200+/MO</span><h3>Enterprise monitoring</h3><p>Corsearch, Clarivate, and similar platforms — custom-quoted, built for legal departments.</p></div>
-      <div class="step"><span class="n">$33–99/MO</span><h3>The affordable tier</h3><p>A handful of options exist, but most reviewers flag this end of the market as thin.</p></div>
-      <div class="step"><span class="n">$19/MO</span><h3>Trademark Watch</h3><p>Same category of alerting, priced for a founder or small business, not a law department.</p></div>
+      <div class="step"><span class="n">$200+/MO</span><h3>Enterprise monitoring</h3><p>Corsearch, Clarivate, and similar — custom-quoted, built for in-house legal departments. Not something a small firm can resell under its own name.</p></div>
+      <div class="step"><span class="n">WEEKS OF DEV</span><h3>Build it yourself</h3><p>Wiring up USPTO's APIs, matching logic, and alert delivery is real engineering work — and then someone has to keep it running.</p></div>
+      <div class="step"><span class="n">FROM $99/MO</span><h3>Trademark Watch, white-labeled</h3><p>Our infrastructure, your firm's name on every alert and report. A watch service you can offer clients from day one.</p></div>
     </div>
   </section>
 
   <section>
     <div class="section-head"><span class="section-num">01</span><h2>How it works</h2></div>
     <div class="steps">
-      <div class="step"><span class="n">01</span><h3>Tell us what to watch</h3><p>A mark, an owner name, or a set of trademark classes — whatever you need to keep an eye on.</p></div>
-      <div class="step"><span class="n">02</span><h3>We check USPTO's filings continuously</h3><p>Every new application and status update runs against your saved criteria, pulled from USPTO's own data.</p></div>
-      <div class="step"><span class="n">03</span><h3>You get an email the moment something matches</h3><p>Plain-language, factual, and fast — so you hear it from us before you hear it from anyone else.</p></div>
+      <div class="step"><span class="n">01</span><h3>Add your clients' marks</h3><p>A mark, an owner name, or a set of trademark classes for each client you represent — or just your own.</p></div>
+      <div class="step"><span class="n">02</span><h3>We check USPTO's filings continuously</h3><p>Every new application and status update runs against the saved criteria, pulled from USPTO's own data.</p></div>
+      <div class="step"><span class="n">03</span><h3>Alerts go out under your brand</h3><p>Your client gets a plain-language email with your firm's name on it. You get a copy and a client-ready summary — so they hear it from you first.</p></div>
     </div>
   </section>
 
   <section>
     <div class="section-head"><span class="section-num">02</span><h2>Pricing — launch rates, subject to change</h2></div>
     <div class="plans">
-      <div class="plan">
-        <div class="plan-name">Starter</div>
-        <div class="plan-price">$19<span> /mo</span></div>
-        <ul><li>1 watched mark</li><li>Weekly digest email</li><li>Owner &amp; class matching</li></ul>
-        <button class="plan-cta" onclick="selectPlan('Starter ($19/mo)')">Notify me</button>
-      </div>
       <div class="plan featured">
-        <div class="plan-name">Growth</div>
-        <div class="plan-price">$49<span> /mo</span></div>
-        <ul><li>Up to 5 watched marks</li><li>Real-time alerts</li><li>Owner, class &amp; keyword matching</li></ul>
-        <button class="plan-cta" onclick="selectPlan('Growth ($49/mo)')">Notify me</button>
-      </div>
-      <div class="plan">
         <div class="plan-name">Firm / White-Label</div>
         <div class="plan-price">$99+<span> /seat/mo</span></div>
-        <ul><li>Resell under your own firm's brand</li><li>Client-ready reports</li><li>Unlimited marks per client</li></ul>
-        <button class="plan-cta" onclick="selectPlan('Firm / White-Label ($99+/seat/mo)', true)">Talk to us</button>
+        <ul><li>Alerts &amp; reports under your firm's brand</li><li>Unlimited marks per client</li><li>Client-ready reports</li><li>Volume pricing for multiple seats</li></ul>
+        <button class="plan-cta" onclick="selectPlan('Firm / White-Label', true)">Talk to us</button>
+      </div>
+      <div class="plan">
+        <div class="plan-name">Direct — Growth</div>
+        <div class="plan-price">$49<span> /mo</span></div>
+        <ul><li>Up to 5 watched marks</li><li>Real-time alerts</li><li>Owner, class &amp; keyword matching</li></ul>
+        <button class="plan-cta" onclick="selectPlan('Growth ($49/mo)', false)">Notify me</button>
+      </div>
+      <div class="plan">
+        <div class="plan-name">Direct — Starter</div>
+        <div class="plan-price">$19<span> /mo</span></div>
+        <ul><li>1 watched mark</li><li>Weekly digest email</li><li>Owner &amp; class matching</li></ul>
+        <button class="plan-cta" onclick="selectPlan('Starter ($19/mo)', false)">Notify me</button>
       </div>
     </div>
+    <p class="plans-note">Direct plans are for founders and small businesses watching their own marks — same engine, no white-labeling.</p>
   </section>
 
   <section id="signup">
@@ -268,14 +311,15 @@
         <div class="field">
           <label>Most interested in</label>
           <div class="radio-row" id="plan-radios">
-            <label class="radio-chip"><input type="radio" name="plan" value="Starter ($19/mo)" checked>Starter — $19/mo</label>
+            <label class="radio-chip"><input type="radio" name="plan" value="Firm / White-Label" checked>White-label for my firm</label>
             <label class="radio-chip"><input type="radio" name="plan" value="Growth ($49/mo)">Growth — $49/mo</label>
+            <label class="radio-chip"><input type="radio" name="plan" value="Starter ($19/mo)">Starter — $19/mo</label>
             <label class="radio-chip"><input type="radio" name="plan" value="Not sure yet">Not sure yet</label>
           </div>
         </div>
-        <label class="check-row"><input type="checkbox" id="f-firm"><span>I'm an attorney or run a firm — I'd want to offer this to my own clients under my own brand (white-label).</span></label>
+        <label class="check-row"><input type="checkbox" id="f-firm" checked><span>I'm an attorney or run a firm — I'd want to offer this to my own clients under my own brand.</span></label>
         <div class="submit-row">
-          <button class="btn-primary" type="submit">Notify me at launch</button>
+          <button class="btn-primary" type="submit">Request early access</button>
           <span class="fine">// takes one click — no email app required</span>
         </div>
       </form>
@@ -288,9 +332,11 @@
 
   <section>
     <div class="section-head"><span class="section-num">04</span><h2>Questions</h2></div>
-    <div class="faq-item"><h3>Is this legal advice?</h3><p>No. Trademark Watch reports publication facts from USPTO's own data — a new filing exists that matches your saved criteria. It doesn't assess likelihood of confusion, validity, or infringement. For any of that, talk to a trademark attorney.</p></div>
+    <div class="faq-item"><h3>What does "white-label" mean here?</h3><p>Alerts, digests, and reports go out carrying your firm's name and logo — Trademark Watch isn't mentioned to your clients. You decide which clients and marks are watched; we handle the monitoring and delivery.</p></div>
+    <div class="faq-item"><h3>Can I use it for my own marks without a firm?</h3><p>Yes. The Starter and Growth plans are for founders and small businesses watching their own marks directly. Same monitoring, just without the branding layer.</p></div>
+    <div class="faq-item"><h3>Is this legal advice?</h3><p>No. Trademark Watch reports publication facts from USPTO's own data — a new filing exists that matches saved criteria. It doesn't assess likelihood of confusion, validity, or infringement. That judgment stays with you and your clients' counsel.</p></div>
     <div class="faq-item"><h3>Where does the data come from?</h3><p>Official USPTO systems — the Trademark Status &amp; Document Retrieval (TSDR) API and USPTO's public bulk trademark data. Nothing scraped, nothing unofficial.</p></div>
-    <div class="faq-item"><h3>When does this launch?</h3><p>We're building now and targeting a 2027 launch. Early-access signups get first access and a founding-member rate.</p></div>
+    <div class="faq-item"><h3>When does this launch?</h3><p>We're building now and targeting a 2027 launch. Early-access firms get first access, a say in the client-facing reports, and a founding-partner rate.</p></div>
   </section>
 
   <footer>
@@ -300,132 +346,6 @@
 
 </div>
 
-<script>
-  var SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwW3vC4t2RSdw7LJwwZMbtbWVRR-DBcEDLmyIXBXyuFNUqElRq4ZPXma_ucQgN6S3C6/exec';
-
-  function submitToSheet(data){
-    var fd = new FormData();
-    Object.keys(data).forEach(function(k){ fd.append(k, data[k]); });
-    // Apps Script web apps don't return CORS headers for cross-origin fetch, so
-    // we use no-cors: the request still reaches the script and appends the row,
-    // we just can't read the response back. Treat a resolved promise (no thrown
-    // network error) as success.
-    return fetch(SIGNUP_ENDPOINT, { method: 'POST', mode: 'no-cors', body: fd });
-  }
-  function showHeroStatus(msg, isError){
-    var el = document.getElementById('hero-status');
-    el.textContent = msg;
-    el.style.color = isError ? '#b3261e' : '';
-    el.style.display = 'block';
-  }
-  function showConfirm(){
-    var box = document.getElementById('confirm-box');
-    document.getElementById('confirm-success').style.display = '';
-    document.getElementById('confirm-error').style.display = 'none';
-    box.classList.add('show');
-    box.scrollIntoView({behavior:'smooth', block:'nearest'});
-  }
-  function showConfirmError(){
-    var box = document.getElementById('confirm-box');
-    document.getElementById('confirm-success').style.display = 'none';
-    document.getElementById('confirm-error').style.display = '';
-    box.classList.add('show');
-    box.scrollIntoView({behavior:'smooth', block:'nearest'});
-  }
-  function quickSignup(e){
-    e.preventDefault();
-    var email = document.getElementById('hero-email').value.trim();
-    if(!email) return false;
-    var btn = document.querySelector('#hero-form button[type=submit]');
-    var original = btn.textContent;
-    btn.disabled = true; btn.textContent = 'Sending…';
-    submitToSheet({ name:'', email:email, plan:'Not sure yet', isFirm:'false' })
-      .then(function(){
-        btn.textContent = "You're in ✓";
-        document.getElementById('f-email').value = email;
-        showHeroStatus("You're on the list — we'll email you when we launch.", false);
-      })
-      .catch(function(){
-        btn.disabled = false; btn.textContent = original;
-        showHeroStatus('Something went wrong — try the form below or email ethan@cascade-ip.com directly.', true);
-      });
-    return false;
-  }
-  function selectPlan(planLabel, isFirm){
-    document.getElementById('signup').scrollIntoView({behavior:'smooth'});
-    var radios = document.querySelectorAll('#plan-radios input[type=radio]');
-    var matched = false;
-    radios.forEach(function(r){ if(r.value === planLabel){ r.checked = true; matched = true; } });
-    if(!matched){ radios[2].checked = true; }
-    if(isFirm){ document.getElementById('f-firm').checked = true; }
-  }
-  function submitSignup(e){
-    e.preventDefault();
-    var name = document.getElementById('f-name').value.trim();
-    var email = document.getElementById('f-email').value.trim();
-    var plan = document.querySelector('#plan-radios input[type=radio]:checked').value;
-    var isFirm = document.getElementById('f-firm').checked;
-    if(!email) return false;
-    var btn = e.target.querySelector('button[type=submit]');
-    var original = btn.textContent;
-    btn.disabled = true; btn.textContent = 'Sending…';
-    submitToSheet({ name:name, email:email, plan:plan, isFirm:isFirm ? 'true' : 'false' })
-      .then(function(){
-        btn.textContent = 'Sent ✓';
-        showConfirm();
-      })
-      .catch(function(){
-        btn.disabled = false; btn.textContent = original;
-        showConfirmError();
-      });
-    return false;
-  }
-  document.getElementById('nav-cta').addEventListener('click', function(){
-    document.getElementById('signup').scrollIntoView({behavior:'smooth'});
-  });
-
-  // ---- motion ----
-  (function(){
-    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if(reduce || typeof gsap === 'undefined'){ return; }
-
-    gsap.fromTo('#hero-h1 .line span', {y:'100%'}, {y:'0%', duration:0.8, ease:'power3.out', stagger:0.08});
-    gsap.fromTo(['.eyebrow', '#hero-sub', '#hero-form', '#hero-fine'],
-      {opacity:0, y:14}, {opacity:1, y:0, duration:0.7, ease:'power2.out', stagger:0.08, delay:0.15});
-    gsap.fromTo('#scan-panel', {opacity:0, y:18}, {opacity:1, y:0, duration:0.8, ease:'power2.out', delay:0.35});
-
-    var sweepH = document.getElementById('scan-panel') ? document.getElementById('scan-panel').offsetHeight : 260;
-    gsap.fromTo('#scan-sweep', {y:0, opacity:0.6}, {
-      y:sweepH, opacity:0, duration:2.2, ease:'power1.inOut', repeat:-1, repeatDelay:1.1, delay:1
-    });
-
-    if(typeof ScrollTrigger !== 'undefined'){
-      gsap.registerPlugin(ScrollTrigger);
-      document.querySelectorAll('section').forEach(function(sec){
-        var head = sec.querySelector('.section-head');
-        if(head){
-          gsap.fromTo(head, {opacity:0, y:16}, {
-            opacity:1, y:0, duration:0.6, ease:'power2.out',
-            scrollTrigger:{trigger:head, start:'top 85%'}
-          });
-        }
-        var items = sec.querySelectorAll('.step, .plan, .faq-item');
-        if(items.length){
-          gsap.fromTo(items, {opacity:0, y:20}, {
-            opacity:1, y:0, duration:0.6, ease:'power2.out', stagger:0.08,
-            scrollTrigger:{trigger:sec, start:'top 80%'}
-          });
-        }
-        var panel = sec.querySelector('.panel');
-        if(panel){
-          gsap.fromTo(panel, {opacity:0, y:20}, {
-            opacity:1, y:0, duration:0.6, ease:'power2.out',
-            scrollTrigger:{trigger:panel, start:'top 85%'}
-          });
-        }
-      });
-    }
-  })();
-</script>
+<script src="main.js"></script>
 </body>
 </html>
